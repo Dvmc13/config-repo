@@ -1,0 +1,11 @@
+server:
+  port: 8086
+
+monitoring:
+  collector:
+    rate: 60000  # Cada 60 segundos
+  kafka:
+    topic: metrics-events
+  threshold:
+    error-rate: 0.05  # 5% de tasa de error
+    latency: 1000     # 1000ms de latencia
