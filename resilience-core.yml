@@ -1,0 +1,32 @@
+server:
+  port: 8084
+
+spring:
+  kafka:
+    consumer:
+      group-id: resilience-core-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.resilience.model"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+resilience:
+  patterns:
+    circuit-breaker:
+      default-wait-duration-ms: 30000
+      default-failure-threshold: 50
+    retry:
+      default-max-attempts: 3
+      default-backoff-ms: 1000
+    timeout:
+      default-duration-ms: 2000
+    rate-limiter:
+      default-limit: 100
+      default-period-ms: 1000
+  notification:
+    kafka:
+      topic: resilience-events
