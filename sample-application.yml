@@ -1,0 +1,36 @@
+server:
+  port: 8090
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      externalServiceA:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+  retry:
+    instances:
+      externalServiceA:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+  ratelimiter:
+    instances:
+      externalServiceA:
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0s
+  timelimiter:
+    instances:
+      externalServiceA:
+        timeoutDuration: 2s
+
+sample:
+  external-service:
+    url: http://external-service:8091/api
+    timeout: 2000
