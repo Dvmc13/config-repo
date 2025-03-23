@@ -1,0 +1,28 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+
+logging:
+  level:
+    root: INFO
+    com.resilience: DEBUG
+    org.springframework.cloud: INFO
+    org.springframework.web: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+resilience:
+  system:
+    version: 1.0.0
+    enabled: true
