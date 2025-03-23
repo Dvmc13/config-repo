@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: sample-application
+          uri: lb://sample-application
+          predicates:
+            - Path=/api/sample/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: samplingService
+                fallbackUri: forward:/fallback/sample-application
+        - id: resilience-core
+          uri: lb://resilience-core
+          predicates:
+            - Path=/api/resilience/**
+          filters:
+            - StripPrefix=1
+        - id: rule-engine
+          uri: lb://rule-engine
+          predicates:
+            - Path=/api/rules/**
+          filters:
+            - StripPrefix=1
+        - id: monitoring-service
+          uri: lb://monitoring-service
+          predicates:
+            - Path=/api/monitoring/**
+          filters:
+            - StripPrefix=1
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      samplingService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+  timelimiter:
+    instances:
+      samplingService:
+        timeoutDuration: 3s
