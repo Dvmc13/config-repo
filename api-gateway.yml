@@ -18,22 +18,28 @@ spring:
               args:
                 name: samplingService
                 fallbackUri: forward:/fallback/sample-application
-        - id: resilience-core
-          uri: lb://resilience-core
+
+        # "monitoring" ahora vive en resilience-service
+        - id: resilience-service-monitoring
+          uri: lb://resilience-service
           predicates:
-            - Path=/api/resilience/**
+            - Path=/api/monitoring/**
           filters:
             - StripPrefix=1
-        - id: rule-engine
-          uri: lb://rule-engine
+
+        # "rules" también vive en resilience-service
+        - id: resilience-service-rules
+          uri: lb://resilience-service
           predicates:
             - Path=/api/rules/**
           filters:
             - StripPrefix=1
-        - id: monitoring-service
-          uri: lb://monitoring-service
+
+        # "resilience" (antes resilience-core) también en resilience-service
+        - id: resilience-service-core
+          uri: lb://resilience-service
           predicates:
-            - Path=/api/monitoring/**
+            - Path=/api/resilience/**
           filters:
             - StripPrefix=1
 
