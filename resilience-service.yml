@@ -31,12 +31,15 @@ monitoring:
 prometheus:
   url: http://prometheus:9090   # tu código usa "prometheus.url", OJO
   metrics:
-    scan-interval: 30000        # si lo necesitas
+    fetch:
+      interval: 30000
+
+    query:
+      latency: rate(http_requests_duration_seconds_sum[1m]) / rate(http_requests_duration_seconds_count[1m])
+      errors: rate(http_server_requests_seconds_count{status!~"2.."}[1m])
+      requests: rate(http_server_requests_seconds_count[1m])
 
 resilience:
-  # Si tu clase usa @Value("${resilience.webhook.url}"),
-  # define 'url' (no 'endpoint').
-  # Si tu clase usa 'endpoint', ajústalo aquí.
   webhook:
     url: http://resilience-service:8086/api/actions
 
