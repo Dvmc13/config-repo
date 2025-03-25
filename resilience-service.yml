@@ -38,7 +38,7 @@ resilience:
   # define 'url' (no 'endpoint').
   # Si tu clase usa 'endpoint', ajústalo aquí.
   webhook:
-    url: http://resilience-service:8080/api/actions
+    url: http://resilience-service:8086/api/actions
 
   rules:
     error-rate-threshold: 0.1
