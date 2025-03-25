@@ -1,13 +1,29 @@
-spring:
-  kafka:
-    bootstrap-servers: localhost:9092
+server:
+  port: 8888
 
-logging:
-  level:
-    root: INFO
-    com.resilience: DEBUG
-    org.springframework.cloud: INFO
-    org.springframework.web: INFO
+spring:
+  application:
+    name: config-server
+  kafka:
+    # IMPORTANTE: desde DENTRO del contenedor, Kafka se llama "kafka:9092"
+    bootstrap-servers: kafka:9092
+  consumer:
+    group-id: config-server
+    auto-offset-reset: earliest
+
+  # Ajusta si usas spring.cloud.stream, etc.
+  # Si no, quita la parte de consumer
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Dvmc13/config-repo.git
+          default-label: main
+          clone-on-start: true
+          search-paths: '{application}'
+    bus:
+      enabled: true
 
 management:
   endpoints:
@@ -21,8 +37,7 @@ management:
     export:
       prometheus:
         enabled: true
-
-resilience:
-  system:
-    version: 1.0.0
-    enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
