@@ -29,7 +29,7 @@ monitoring:
 
 # Ajustes de Prometheus
 prometheus:
-  url: http://prometheus:9090   # tu código usa "prometheus.url", OJO
+  url: http://localhost:9090   # tu código usa "prometheus.url", OJO
   metrics:
     fetch:
       interval: 30000
@@ -41,7 +41,7 @@ prometheus:
 
 resilience:
   webhook:
-    url: http://resilience-service:8086/api/actions
+    url: http://localhost:8086/api/actions
 
   rules:
     error-rate-threshold: 0.1
