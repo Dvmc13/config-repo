@@ -1,0 +1,62 @@
+server:
+  port: 8086
+
+spring:
+  kafka:
+    consumer:
+      # Un solo group-id para la app unificada, o uno distinto si quieres separarlos
+      group-id: resilience-service-group 
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.resilience.service.model"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+# Ajustes de Monitorización
+monitoring:
+  collector:
+    rate: 60000  # cada 60 segundos
+  kafka:
+    topic: metrics-events
+  threshold:
+    error-rate: 0.05
+    latency: 1000
+
+# Ajustes de Prometheus
+prometheus:
+  url: http://prometheus:9090   # tu código usa "prometheus.url", OJO
+  metrics:
+    scan-interval: 30000        # si lo necesitas
+
+resilience:
+  # Si tu clase usa @Value("${resilience.webhook.url}"),
+  # define 'url' (no 'endpoint').
+  # Si tu clase usa 'endpoint', ajústalo aquí.
+  webhook:
+    url: http://resilience-service:8086/api/actions
+
+  rules:
+    error-rate-threshold: 0.1
+    latency-threshold-ms: 2000
+    request-volume-threshold: 500
+    connection-failure-threshold: 5
+
+  patterns:
+    circuit-breaker:
+      default-wait-duration-ms: 30000
+      default-failure-threshold: 50
+    retry:
+      default-max-attempts: 3
+      default-backoff-ms: 1000
+    timeout:
+      default-duration-ms: 2000
+    rate-limiter:
+      default-limit: 100
+      default-period-ms: 1000
+
+  notification:
+    kafka:
+      topic: resilience-events
