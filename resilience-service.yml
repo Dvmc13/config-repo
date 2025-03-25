@@ -2,6 +2,8 @@ server:
   port: 8086
 
 spring:
+  application:
+    name: resilience-service
   kafka:
     consumer:
       # Un solo group-id para la app unificada, o uno distinto si quieres separarlos
