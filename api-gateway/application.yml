@@ -9,24 +9,18 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
-        - id: resilience-service-monitoring
-          uri: lb://resilience-service
-          predicates:
-            - Path=/api/monitoring/**
-          filters:
-            - StripPrefix=1
-        - id: resilience-service-rules
-          uri: lb://resilience-service
-          predicates:
-            - Path=/api/rules/**
-          filters:
-            - StripPrefix=1
         - id: sample-route
           uri: http://sample-application:8081
           predicates:
             - Path=/sample/** 
           filters:
             - StripPrefix=1
+            # Filtro de CircuitBreaker con fallback (configurable)
+            - CircuitBreaker=name=sampleServiceCircuitBreaker,fallbackUri=forward:/fallback/sample
+            # Filtro de Retry para métodos GET (configurable)
+            - Retry=methods=GET,retries=3,backoff=100,1000,2,true
+          metrics:
+            enables: true
 
 resilience4j:
   circuitbreaker:
