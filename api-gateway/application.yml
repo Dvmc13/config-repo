@@ -21,6 +21,12 @@ spring:
             - Path=/api/rules/**
           filters:
             - StripPrefix=1
+        - id: sample-route
+          uri: http://sample-application:8081
+          predicates:
+            - Path=/sample/** 
+          filters:
+            - StripPrefix=1
 
 resilience4j:
   circuitbreaker:
