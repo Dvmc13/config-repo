@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 8081
 
 resilience4j:
   circuitbreaker:
@@ -29,8 +29,3 @@ resilience4j:
     instances:
       externalServiceA:
         timeoutDuration: 2s
-
-sample:
-  external-service:
-    url: http://external-service:8091/api
-    timeout: 2000
