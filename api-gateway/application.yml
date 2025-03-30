@@ -15,10 +15,17 @@ spring:
             - Path=/sample/** 
           filters:
             - StripPrefix=1
-            # Filtro de CircuitBreaker con fallback (configurable)
-            - CircuitBreaker=name=sampleServiceCircuitBreaker,fallbackUri=forward:/fallback/sample
-            # Filtro de Retry para métodos GET (configurable)
-            - Retry=methods=GET,retries=3,backoff=100,1000,2
+            - name: CircuitBreaker
+              args:
+                name: sampleServiceCircuitBreaker
+                fallbackUri: forward:/fallback/sample
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET
+                firstBackoff: 100ms
+                maxBackoff: 1000ms
+                factor: 2
           metrics:
             enables: true
 
