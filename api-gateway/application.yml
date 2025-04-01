@@ -23,7 +23,10 @@ spring:
               args:
                 retries: 3
                 methods: GET
-                backoff: "100ms, 1000MS, 2"
+                backoff: 
+                  firstBackoff: 100ms 
+                  maxBackofff: 1000MS
+                  factor: 2
           metrics:
             enables: true
 
