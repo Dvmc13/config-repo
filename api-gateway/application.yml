@@ -22,12 +22,8 @@ spring:
             - name: Retry
               args:
                 retries: 3
-                methods: 
-                  - GET
-                backoff:
-                  firstBackoff: 100ms
-                  maxBackoff: 1000ms
-                  factor: 2
+                methods: GET
+                backoff: "100ms, 1000MS, 2"
           metrics:
             enables: true
 
