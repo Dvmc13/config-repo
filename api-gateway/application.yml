@@ -10,7 +10,7 @@ spring:
           lower-case-service-id: true
       routes:
         - id: sample-route
-          uri: http://sample-application:8081
+          uri: http://sample-application:8081/api
           predicates:
             - Path=/sample/** 
           filters:
