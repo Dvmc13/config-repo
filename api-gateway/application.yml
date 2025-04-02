@@ -14,6 +14,7 @@ spring:
           predicates:
             - Path=/sample/** 
           filters:
+            - RewritePath=/sample/(?<segment>.*), /api/${segment}
             - StripPrefix=1
             - name: CircuitBreaker
               args:
