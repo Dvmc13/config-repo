@@ -5,14 +5,10 @@ spring:
   application:
     name: config-server
   kafka:
-    # IMPORTANTE: desde DENTRO del contenedor, Kafka se llama "kafka:9092"
     bootstrap-servers: kafka:9092
-  consumer:
-    group-id: config-server
-    auto-offset-reset: earliest
-
-  # Ajusta si usas spring.cloud.stream, etc.
-  # Si no, quita la parte de consumer
+    consumer:
+      group-id: config-server
+      auto-offset-reset: earliest
 
   cloud:
     config:
@@ -36,8 +32,4 @@ management:
   metrics:
     export:
       prometheus:
-        enabled: true
-  prometheus:
-    metrics:
-      export:
         enabled: true
