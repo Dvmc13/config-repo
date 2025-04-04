@@ -1,0 +1,146 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: frontend
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: microusers-route
+          uri: http://microusers:8081
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: microusersCircuitBreaker
+                fallbackUri: forward:/fallback/microusers
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,PUT,DELETE
+                backoff:
+                  firstBackoff: 100ms
+                  maxBackoff: 1000ms
+                  factor: 2
+                  
+        - id: microproducts-route
+          uri: http://microproducts:8082
+          predicates:
+            - Path=/api/products/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: microproductsCircuitBreaker
+                fallbackUri: forward:/fallback/microproducts
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,PUT,DELETE
+                backoff:
+                  firstBackoff: 100ms
+                  maxBackoff: 1000ms
+                  factor: 2
+                  
+        - id: microorders-route
+          uri: http://microorders:8083
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: microordersCircuitBreaker
+                fallbackUri: forward:/fallback/microorders
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,PUT,DELETE
+                backoff:
+                  firstBackoff: 100ms
+                  maxBackoff: 1000ms
+                  factor: 2
+      metrics:
+        enabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+    instances:
+      microusersCircuitBreaker:
+        baseConfig: default
+      microproductsCircuitBreaker:
+        baseConfig: default
+      microordersCircuitBreaker:
+        baseConfig: default
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 100ms
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+    instances:
+      microusersRetry:
+        baseConfig: default
+      microproductsRetry:
+        baseConfig: default
+      microordersRetry:
+        baseConfig: default
+  ratelimiter:
+    configs:
+      default:
+        registerHealthIndicator: true
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0s
+    instances:
+      microusersRateLimiter:
+        baseConfig: default
+      microproductsRateLimiter:
+        baseConfig: default
+      microordersRateLimiter:
+        baseConfig: default
+
+# Configuración de Chaos Monkey
+chaos:
+  monkey:
+    enabled: true
+    watcher:
+      restController: true
+    assaults:
+      latencyActive: true
+      exceptionsActive: false
+      latencyRangeStart: 500
+      latencyRangeEnd: 2000
+      level: 3
+      deterministic: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+    chaosmonkey:
+      enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
