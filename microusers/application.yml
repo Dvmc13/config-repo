@@ -77,16 +77,3 @@ resilience4j:
 chaos:
   monkey:
     enabled: false
-    watcher:
-      controller: true
-      restController: true
-      repository: false
-      service: true
-      component: false
-    assaults:
-      latencyActive: false
-      exceptionsActive: true
-      killApplicationActive: false
-      level: 3
-      latencyRangeStart: 1000
-      latencyRangeEnd: 3000
