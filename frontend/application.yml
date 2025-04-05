@@ -21,6 +21,13 @@ spring:
     # Activa un perfil local por defecto y 'chaos-monkey' 
     # (puede ser sobreescrito con SPRING_PROFILES_ACTIVE)
     active: ${SPRING_PROFILES_ACTIVE:default,chaos-monkey}
+    
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failureRateThreshold: 20  # era 50
+        waitDurationInOpenState: 10s  # era 5s
 
 management:
   endpoints:
