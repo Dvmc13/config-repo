@@ -38,7 +38,7 @@ management:
 # y si desde el Config Server se sobreescribe, se tomarán esos valores.
 chaos:
   monkey:
-    enabled: false
+    enabled: true
     watcher:
       # True si quieres inyectar fallos en clases con @Controller
       controller: true
