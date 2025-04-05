@@ -38,7 +38,7 @@ management:
 # y si desde el Config Server se sobreescribe, se tomarán esos valores.
 chaos:
   monkey:
-    enabled: true
+    enabled: false
     watcher:
       # True si quieres inyectar fallos en clases con @Controller
       controller: true
@@ -53,7 +53,7 @@ chaos:
     assaults:
       # Sólo latencia de momento (puedes poner exceptionsActive: true si quieres que lance errores)
       latencyActive: true
-      exceptionsActive: true
+      exceptionsActive: false
       killApplicationActive: false
       # Nivel de “agresividad” (depende de la versión de Chaos Monkey)
       level: 3
