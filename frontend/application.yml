@@ -4,30 +4,119 @@ server:
 spring:
   application:
     name: frontend
-
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  
   # Importante: para que lea configuración remota
   cloud:
     config:
       uri: http://config-server:8888
       fail-fast: true
-      # Esto es opcional, pero evita warnings sobre "import-check" en versiones nuevas
       import-check:
         enabled: false
-    # Habilita la comunicación con Spring Cloud Bus (Kafka/Rabbit)
+    # Habilita la comunicación con Spring Cloud Bus
     bus:
       enabled: true
+    # Configuración del gateway
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: microusers-route
+          uri: http://microusers:8081
+          predicates:
+            - Path=/api/users/**,/api/login
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - name: CircuitBreaker
+              args:
+                name: microusersCircuitBreaker
+                fallbackUri: forward:/fallback/microusers
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,PUT,DELETE
+                backoff:
+                  firstBackoff: 100ms
+                  maxBackoff: 1000ms
+                  factor: 2
+        - id: microproducts-route
+          uri: http://microproducts:8083
+          predicates:
+            - Path=/api/products/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - name: CircuitBreaker
+              args:
+                name: microproductsCircuitBreaker
+                fallbackUri: forward:/fallback/microproducts
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,PUT,DELETE
+                backoff:
+                  firstBackoff: 100ms
+                  maxBackoff: 1000ms
+                  factor: 2
+      metrics:
+        enabled: true
 
   profiles:
-    # Activa un perfil local por defecto y 'chaos-monkey' 
-    # (puede ser sobreescrito con SPRING_PROFILES_ACTIVE)
     active: ${SPRING_PROFILES_ACTIVE:default,chaos-monkey}
-    
+
+# Configuración de Resilience4j
 resilience4j:
   circuitbreaker:
     configs:
       default:
-        failureRateThreshold: 20  # era 50
-        waitDurationInOpenState: 10s  # era 5s
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s  # Actualizado a 10s
+        failureRateThreshold: 20  # Actualizado a 20
+        eventConsumerBufferSize: 10
+    instances:
+      microusersCircuitBreaker:
+        baseConfig: default
+      microproductsCircuitBreaker:
+        baseConfig: default
+
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 100ms
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+    instances:
+      microusersRetry:
+        baseConfig: default
+      microproductsRetry:
+        baseConfig: default
+
+# Configuración de Chaos Monkey
+chaos:
+  monkey:
+    enabled: false
+    watcher:
+      controller: true
+      restController: true
+      service: false
+      repository: false
+      component: false
+    assaults:
+      latencyActive: false
+      exceptionsActive: true
+      killApplicationActive: false
+      level: 3
+      latencyRangeStart: 1000
+      latencyRangeEnd: 3000
 
 management:
   endpoints:
@@ -39,31 +128,8 @@ management:
       show-details: always
     chaosmonkey:
       enabled: true
-
-# Configuración local de Chaos Monkey (fallback),
-# para poder inyectar fallos en controladores,
-# y si desde el Config Server se sobreescribe, se tomarán esos valores.
-chaos:
-  monkey:
-    enabled: true
-    watcher:
-      # True si quieres inyectar fallos en clases con @Controller
-      controller: true
-      # True si quieres inyectar fallos en clases con @RestController
-      restController: true
-      # Actívalo sólo si tienes clases con @Service
-      service: false
-      # Si no tienes @Repository, puedes dejarlo false
-      repository: false
-      # Si no tienes @Component genéricas que quieras atacar, pon false
-      component: false
-    assaults:
-      # Sólo latencia de momento (puedes poner exceptionsActive: true si quieres que lance errores)
-      latencyActive: false
-      exceptionsActive: true
-      killApplicationActive: false
-      # Nivel de “agresividad” (depende de la versión de Chaos Monkey)
-      level: 3
-      # Rango de latencia en ms (desde 1000ms hasta 3000ms)
-      latencyRangeStart: 1000
-      latencyRangeEnd: 3000
+    gateway:
+      enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
