@@ -53,7 +53,7 @@ chaos:
     assaults:
       # Sólo latencia de momento (puedes poner exceptionsActive: true si quieres que lance errores)
       latencyActive: true
-      exceptionsActive: false
+      exceptionsActive: true
       killApplicationActive: false
       # Nivel de “agresividad” (depende de la versión de Chaos Monkey)
       level: 3
