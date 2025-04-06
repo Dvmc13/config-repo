@@ -45,34 +45,7 @@ management:
   health:
     circuitbreakers:
       enabled: true
-
-# Configuración de Resilience4j
-resilience4j:
-  circuitbreaker:
-    configs:
-      default:
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 5s
-        failureRateThreshold: 50
-    instances:
-      usersService:
-        baseConfig: default
-  retry:
-    configs:
-      default:
-        maxAttempts: 3
-        waitDuration: 1s
-  ratelimiter:
-    configs:
-      default:
-        limitForPeriod: 10
-        limitRefreshPeriod: 1s
-        timeoutDuration: 0s
-
+      
 # Configuración de Chaos Monkey
 chaos:
   monkey:
