@@ -94,13 +94,13 @@ resilience4j:
     configs:
       default:
         registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 100
+        minimumNumberOfCalls: 20
+        permittedNumberOfCallsInHalfOpenState: 10
         automaticTransitionFromOpenToHalfOpenEnabled: true
         waitDurationInOpenState: 10s  # Actualizado a 10s
         failureRateThreshold: 20  # Actualizado a 20
-        eventConsumerBufferSize: 10
+        eventConsumerBufferSize: 20
     instances:
       microusersCircuitBreaker:
         baseConfig: default
