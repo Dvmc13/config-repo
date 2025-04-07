@@ -109,6 +109,18 @@ resilience4j:
       microordersCircuitBreaker:
         baseConfig: default
 
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 100ms
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+    instances:
+      microproductsRetry:
+        baseConfig: default
+
 # Configuración de Chaos Monkey
 chaos:
   monkey:
