@@ -50,3 +50,19 @@ management:
 chaos:
   monkey:
     enabled: true
+    watcher:
+      controller: true
+      restController: true
+      service: true
+      repository: true
+      component: true
+    assaults:
+      latencyActive: false
+      exceptionsActive: true  # Activamos excepciones
+      killApplicationActive: false
+      level: 5  # Alto nivel para aumentar probabilidad
+      deterministic: false  # Modo aleatorio
+      exceptions:
+        type: java.lang.RuntimeException
+        arguments:
+          - "Chaos Monkey - RuntimeException en microusers"
