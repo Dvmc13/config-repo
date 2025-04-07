@@ -43,7 +43,7 @@ management:
     chaosmonkey:
       enabled: true
   health:
-    circuitbreakers:
+    retries:
       enabled: true
 
 # Configuración de Chaos Monkey
