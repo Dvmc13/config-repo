@@ -104,10 +104,7 @@ resilience4j:
     instances:
       microusersCircuitBreaker:
         baseConfig: default
-      microproductsCircuitBreaker:
-        baseConfig: default
-      microordersCircuitBreaker:
-        baseConfig: default
+
 
   retry:
     configs:
