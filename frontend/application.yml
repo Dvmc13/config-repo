@@ -107,23 +107,19 @@ resilience4j:
 
 
   retry:
-    configs:
-      default:
-        maxAttempts: 3
-        waitDuration: 500ms
-        enableExponentialBackoff: true
-        exponentialBackoffMultiplier: 2
-        failAfterMaxAttempts: true
     instances:
       microproductsRetry:
-        baseConfig: default
         maxAttempts: 3
         waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
         retryExceptions:
           - java.lang.RuntimeException
           - java.io.IOException
-        enableExponentialBackoff: true
-        exponentialBackoffMultiplier: 2
+          - org.springframework.web.client.ResourceAccessException
+        failAfterMaxAttempts: true
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 100
 
 # Configuración de Chaos Monkey
 chaos:
@@ -145,12 +141,20 @@ management:
       enabled: true
     gateway:
       enabled: true
+    retryevents:
+      enabled: true
   health:
     circuitbreakers:
       enabled: true
-    retryevents:
+    retry:
       enabled: true
   metrics:
+    tags:
+      application: ${spring.application.name}
     distribution:
       percentiles-histogram:
         resilience4j.retry: true
+        resilience4j.circuitbreaker: true
+    export:
+      prometheus:
+        enabled: true
