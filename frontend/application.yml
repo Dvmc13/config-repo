@@ -110,13 +110,24 @@ resilience4j:
     configs:
       default:
         maxAttempts: 3
-        waitDuration: 100ms
-        retryExceptions:
-          - org.springframework.web.client.HttpServerErrorException
-          - java.io.IOException
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptionPredicate: io.github.resilience4j.retry.RetryConfig.DEFAULT_RETRY_PREDICATE
+        failAfterMaxAttempts: true
     instances:
       microproductsRetry:
         baseConfig: default
+        maxAttempts: 3
+        waitDuration: 1s
+        retryExceptions:
+          - java.lang.RuntimeException
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+        ignoreExceptions:
+          - jakarta.persistence.EntityNotFoundException
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
 
 # Configuración de Chaos Monkey
 chaos:
@@ -141,3 +152,9 @@ management:
   health:
     circuitbreakers:
       enabled: true
+    retryevents:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        resilience4j.retry: true
