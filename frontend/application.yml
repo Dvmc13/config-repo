@@ -125,6 +125,7 @@ chaos:
       latencyRangeEnd: 2000     # Latencia máxima en milisegundos
       exceptionsActive: true    # Activa inyección de excepciones
       killApplicationActive: false  # No termina la aplicación
+      deterministic: true
       level: 1  
 
 management:
