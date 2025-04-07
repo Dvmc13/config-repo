@@ -129,6 +129,9 @@ chaos:
 
 management:
   endpoints:
+    env:
+      # Para mirar todos los valores
+      keys-to-sanitize: []
     web:
       exposure:
         include: "*"
