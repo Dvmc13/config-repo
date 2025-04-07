@@ -49,4 +49,4 @@ management:
 # Configuración de Chaos Monkey
 chaos:
   monkey:
-    enabled: false
+    enabled: true
