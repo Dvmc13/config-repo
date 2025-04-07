@@ -43,21 +43,12 @@ management:
     chaosmonkey:
       enabled: true
   health:
-    retries:
+    retryevents:
       enabled: true
-
-resilience4j:
-  retry:
-    configs:
-      default:
-        maxAttempts: 3
-        waitDuration: 100ms
-        retryExceptions:
-          - org.springframework.web.client.HttpServerErrorException
-          - java.io.IOException
-    instances:
-      microproductsRetry:
-        baseConfig: default
+  metrics:
+    distribution:
+      percentiles-histogram:
+        resilience4j.retry: true
 
 # Configuración de Chaos Monkey
 chaos:
