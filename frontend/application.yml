@@ -107,19 +107,26 @@ resilience4j:
 
 
   retry:
-    instances:
-      microproductsRetry:
+    configs:
+      default:
         maxAttempts: 3
-        waitDuration: 1s
+        waitDuration: 500ms
         enableExponentialBackoff: true
         exponentialBackoffMultiplier: 2
+        eventConsumerBufferSize: 100
+        registerHealthIndicator: true
+    instances:
+      microproductsRetry:
+        baseConfig: default
+        maxAttempts: 3
+        waitDuration: 1s
         retryExceptions:
           - java.lang.RuntimeException
           - java.io.IOException
-          - org.springframework.web.client.ResourceAccessException
-        failAfterMaxAttempts: true
-        registerHealthIndicator: true
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
         eventConsumerBufferSize: 100
+        registerHealthIndicator: true
 
 # Configuración de Chaos Monkey
 chaos:
