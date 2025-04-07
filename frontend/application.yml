@@ -112,21 +112,7 @@ resilience4j:
 # Configuración de Chaos Monkey
 chaos:
   monkey:
-    enabled: true
-    watcher:
-      controller: true        # Monitorea controladores
-      restController: true      # Monitorea controladores REST
-      service: true             # Monitorea servicios
-      repository: false         # Opcional: desactivar si no se desea inyectar fallos en repositorios
-      component: false          # Opcional: desactivar si no se requiere en componentes genéricos
-    assaults:
-      latencyActive: false       # Activa inyección de latencia
-      latencyRangeStart: 500    # Latencia mínima en milisegundos
-      latencyRangeEnd: 2000     # Latencia máxima en milisegundos
-      exceptionsActive: true    # Activa inyección de excepciones
-      killApplicationActive: false  # No termina la aplicación
-      deterministic: true
-      level: 1  
+    enabled: false
 
 management:
   endpoints:
