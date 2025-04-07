@@ -112,7 +112,7 @@ resilience4j:
 # Configuración de Chaos Monkey
 chaos:
   monkey:
-    enabled: true
+    enabled: false
 
 management:
   endpoints:
