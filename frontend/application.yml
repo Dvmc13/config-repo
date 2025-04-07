@@ -98,8 +98,8 @@ resilience4j:
         minimumNumberOfCalls: 5
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 2s  # Actualizado a 10s
-        failureRateThreshold: 10  # Actualizado a 20
+        waitDurationInOpenState: 5s  # Actualizado a 10s
+        failureRateThreshold: 100  # Actualizado a 20
         eventConsumerBufferSize: 50
     instances:
       microusersCircuitBreaker:
