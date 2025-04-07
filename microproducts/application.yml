@@ -46,6 +46,7 @@ management:
     retries:
       enabled: true
 
+resilience4j:
   retry:
     configs:
       default:
