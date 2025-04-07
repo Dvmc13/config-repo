@@ -112,11 +112,11 @@ resilience4j:
 # Configuración de Chaos Monkey
 chaos:
   monkey:
-    enabled: false
+    enabled: true
     watcher:
-      controller: true        # Monitorea controladores
-      restController: true      # Monitorea controladores REST
-      service: true             # Monitorea servicios
+      controller: false        # Monitorea controladores
+      restController: false      # Monitorea controladores REST
+      service: false             # Monitorea servicios
       repository: false         # Opcional: desactivar si no se desea inyectar fallos en repositorios
       component: false          # Opcional: desactivar si no se requiere en componentes genéricos
     assaults:
