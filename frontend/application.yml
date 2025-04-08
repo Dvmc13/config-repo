@@ -128,6 +128,21 @@ resilience4j:
         eventConsumerBufferSize: 100
         registerHealthIndicator: true
 
+  # Configuración de Rate Limiter
+  ratelimiter:
+    configs:
+      default:
+        registerHealthIndicator: true
+        limitForPeriod: 2  # Número de llamadas permitidas en el período
+        limitRefreshPeriod: 10s  # Período de tiempo para refrescar el límite
+        timeoutDuration: 3s  # Tiempo máximo de espera para adquirir un permiso
+        eventConsumerBufferSize: 100
+    instances:
+      microordersRateLimiter:
+        baseConfig: default
+        limitForPeriod: 2
+        limitRefreshPeriod: 10s
+
 # Configuración de Chaos Monkey
 chaos:
   monkey:
@@ -146,6 +161,10 @@ management:
       show-details: always
     chaosmonkey:
       enabled: true
+    ratelimiters:
+      enabled: true
+    ratelimiterevents:
+      enabled: true
     gateway:
       enabled: true
     retryevents:
@@ -155,12 +174,15 @@ management:
       enabled: true
     retry:
       enabled: true
+    ratelimiters:
+      enabled: true
   metrics:
     tags:
       application: ${spring.application.name}
     distribution:
       percentiles-histogram:
         resilience4j.retry: true
+        resilience4j.ratelimiter: true
         resilience4j.circuitbreaker: true
     export:
       prometheus:
