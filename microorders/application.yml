@@ -48,4 +48,22 @@ management:
 # Configuración de Chaos Monkey
 chaos:
   monkey:
-    enabled: false
+    enabled: true
+    watcher:
+      controller: true
+      restController: true
+      service: true
+      repository: true
+      component: true
+    assaults:
+      latencyActive: true
+      exceptionsActive: false
+      killApplicationActive: false
+      level: 5  # Alto nivel para aumentar probabilidad
+      latencyRangeStart: 1000
+      latencyRangeEnd: 3000
+      deterministic: false  # Modo aleatorio
+      exceptions:
+        type: java.lang.RuntimeException
+        arguments:
+          - "Chaos Monkey - RuntimeException en microorders"
