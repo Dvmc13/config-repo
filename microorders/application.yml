@@ -42,8 +42,19 @@ management:
       enabled: true
     chaosmonkey:
       enabled: true
+    ratelimiters:
+      enabled: true
+    ratelimiterevents:
+      enabled: true
   health:
-
+    ratelimiters:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        resilience4j.ratelimiter: true
 
 # Configuración de Chaos Monkey
 chaos:
