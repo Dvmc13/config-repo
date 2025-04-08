@@ -53,7 +53,7 @@ management:
 # Configuración de Chaos Monkey
 chaos:
   monkey:
-    enabled: true
+    enabled: false
     watcher:
       controller: true
       restController: true
