@@ -45,6 +45,8 @@ management:
   health:
     retryevents:
       enabled: true
+    chaosmonkey:
+      enabled: true
   metrics:
     distribution:
       percentiles-histogram:
