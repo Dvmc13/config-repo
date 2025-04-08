@@ -35,14 +35,6 @@ spring:
               args:
                 name: microusersCircuitBreaker
                 fallbackUri: forward:/fallback/microusers
-            - name: Retry
-              args:
-                retries: 3
-                methods: GET,POST,PUT,DELETE
-                backoff:
-                  firstBackoff: 100ms
-                  maxBackoff: 1000ms
-                  factor: 2
                   
         - id: microproducts-route
           uri: http://microproducts:8083
@@ -50,10 +42,6 @@ spring:
             - Path=/api/products/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - name: CircuitBreaker
-              args:
-                name: microproductsCircuitBreaker
-                fallbackUri: forward:/fallback/microproducts
             - name: Retry
               args:
                 retries: 3
@@ -69,18 +57,6 @@ spring:
             - Path=/api/orders/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - name: CircuitBreaker
-              args:
-                name: microordersCircuitBreaker
-                fallbackUri: forward:/fallback/microorders
-            - name: Retry
-              args:
-                retries: 3
-                methods: GET,POST,PUT,DELETE
-                backoff:
-                  firstBackoff: 100ms
-                  maxBackoff: 1000ms
-                  factor: 2
                   
       metrics:
         enabled: true
@@ -130,18 +106,13 @@ resilience4j:
 
   # Configuración de Rate Limiter
   ratelimiter:
-    configs:
-      default:
-        registerHealthIndicator: true
+    instances:
+      ordersRateLimiter:
         limitForPeriod: 2  # Número de llamadas permitidas en el período
         limitRefreshPeriod: 10s  # Período de tiempo para refrescar el límite
         timeoutDuration: 3s  # Tiempo máximo de espera para adquirir un permiso
+        registerHealthIndicator: true
         eventConsumerBufferSize: 100
-    instances:
-      microordersRateLimiter:
-        baseConfig: default
-        limitForPeriod: 2
-        limitRefreshPeriod: 10s
 
 # Configuración de Chaos Monkey
 chaos:
