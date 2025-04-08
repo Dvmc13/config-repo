@@ -1,5 +1,5 @@
 server:
-  port: 8082  # Cambiado a 8082 para evitar conflicto con microproducts
+  port: 8082 
 
 spring:
   application:
@@ -43,8 +43,7 @@ management:
     chaosmonkey:
       enabled: true
   health:
-    circuitbreakers:
-      enabled: true
+
 
 # Configuración de Chaos Monkey
 chaos:
