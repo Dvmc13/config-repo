@@ -57,9 +57,10 @@ spring:
             - Path=/api/orders/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - name: RequestSize
+            - name: RateLimiter
               args:
-                maxSize: 5MB
+                rate-limiter-name: microordersRateLimiter
+                fallback-uri: forward:/fallback/microorders
                   
       metrics:
         enabled: true
