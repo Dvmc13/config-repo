@@ -58,13 +58,16 @@ management:
 
 resilience4j:
   ratelimiter:
-    instances:
-      microordersRateLimiter:
+    configs:
+      default:
         limitForPeriod: 2
         limitRefreshPeriod: 10s
         timeoutDuration: 3s
         registerHealthIndicator: true
         eventConsumerBufferSize: 100
+    instances:
+      microordersRateLimiter:
+        baseConfig: default
 
 # Configuración de Chaos Monkey
 chaos:
