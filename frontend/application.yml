@@ -57,15 +57,6 @@ spring:
             - Path=/api/orders/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - name: RequestRateLimiter
-              args:
-                key-resolver: "#{@ipKeyResolver}"
-                rate-limiter: "#{@customRateLimiter}"
-                deny-empty-key: false
-                empty-key-status-code: 403
-            - name: RequestSize
-              args:
-                maxSize: 5MB
                   
       metrics:
         enabled: true
