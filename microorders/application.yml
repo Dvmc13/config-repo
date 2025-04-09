@@ -56,6 +56,16 @@ management:
       percentiles-histogram:
         resilience4j.ratelimiter: true
 
+resilience4j:
+  ratelimiter:
+    instances:
+      microordersRateLimiter:
+        limitForPeriod: 2
+        limitRefreshPeriod: 10s
+        timeoutDuration: 3s
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 100
+
 # Configuración de Chaos Monkey
 chaos:
   monkey:
