@@ -110,7 +110,6 @@ resilience4j:
         registerHealthIndicator: true
 
   # Configuración de Rate Limiter
-resilience4j:
   ratelimiter:
     instances:
       microordersRateLimiter:
