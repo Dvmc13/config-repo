@@ -54,8 +54,20 @@ management:
       application: ${spring.application.name}
     distribution:
       percentiles-histogram:
+        resilience4j.retry: true
         resilience4j.ratelimiter: true
-
+    enabled: true
+    legacy:
+      enabled: true
+  springboot:
+    actuator:
+      health:
+        enabled: true
+      metrics:
+        enabled: true
+      events:
+        enabled: true
+        
 resilience4j:
   ratelimiter:
     configs:
@@ -67,6 +79,7 @@ resilience4j:
         eventConsumerBufferSize: 100
     instances:
       microordersRateLimiter:
+        registerHealthIndicator: true
         baseConfig: default
 
 # Configuración de Chaos Monkey
