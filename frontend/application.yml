@@ -160,9 +160,6 @@ management:
       percentiles-histogram:
         resilience4j.retry: true
         resilience4j.ratelimiter: true
-        resilience4j.circuitbreaker: true
-        
-  metrics:
     enabled: true
     legacy:
       enabled: true
