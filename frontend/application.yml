@@ -161,6 +161,20 @@ management:
         resilience4j.retry: true
         resilience4j.ratelimiter: true
         resilience4j.circuitbreaker: true
+        
+  metrics:
+    enabled: true
+    legacy:
+      enabled: true
+  springboot:
+    actuator:
+      health:
+        enabled: true
+      metrics:
+        enabled: true
+      events:
+        enabled: true
+        
     export:
       prometheus:
         enabled: true
