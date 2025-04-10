@@ -57,12 +57,6 @@ spring:
             - Path=/api/orders/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 2
-                redis-rate-limiter.burstCapacity: 2
-                redis-rate-limiter.requestedTokens: 1
-                key-resolver: "#{@ipKeyResolver}"
       metrics:
         enabled: true
 
