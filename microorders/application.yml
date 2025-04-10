@@ -49,6 +49,8 @@ management:
   health:
     ratelimiters:
       enabled: true
+    ratelimiterevents:
+      enabled: true
   metrics:
     tags:
       application: ${spring.application.name}
@@ -77,6 +79,7 @@ resilience4j:
         timeoutDuration: 3s
         registerHealthIndicator: true
         eventConsumerBufferSize: 100
+        recordEvents: true
     instances:
       microordersRateLimiter:
         registerHealthIndicator: true
