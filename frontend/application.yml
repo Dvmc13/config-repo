@@ -138,9 +138,9 @@ management:
       show-details: always
     chaosmonkey:
       enabled: true
-    ratelimiters:
+    rateLimiters:
       enabled: true
-    ratelimiterevents:
+    rateLimiterEvents:
       enabled: true
     gateway:
       enabled: true
@@ -151,7 +151,9 @@ management:
       enabled: true
     retry:
       enabled: true
-    ratelimiters:
+    rateLimiters:
+      enabled: true
+    rateLimiterEvents:
       enabled: true
   metrics:
     tags:
