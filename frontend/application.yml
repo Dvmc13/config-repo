@@ -116,6 +116,7 @@ resilience4j:
         timeoutDuration: 3s
         registerHealthIndicator: true
         eventConsumerBufferSize: 100
+        recordEvents: true
     instances:
       microordersRateLimiter:
         baseConfig: default
@@ -138,9 +139,9 @@ management:
       show-details: always
     chaosmonkey:
       enabled: true
-    rateLimiters:
+    ratelimiters:
       enabled: true
-    rateLimiterEvents:
+    ratelimiterevents:
       enabled: true
     gateway:
       enabled: true
@@ -151,9 +152,9 @@ management:
       enabled: true
     retry:
       enabled: true
-    rateLimiters:
+    ratelimiters:
       enabled: true
-    rateLimiterEvents:
+    ratelimiterevents:
       enabled: true
   metrics:
     tags:
