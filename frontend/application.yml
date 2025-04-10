@@ -120,7 +120,7 @@ resilience4j:
         subscribeForEvents: true
     instances:
       microordersRateLimiter:
-      baseConfig: default
+        baseConfig: default
 
 # Configuración de Chaos Monkey
 chaos:
