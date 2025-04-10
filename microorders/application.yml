@@ -80,10 +80,10 @@ resilience4j:
         registerHealthIndicator: true
         eventConsumerBufferSize: 100
         recordEvents: true
+        subscribeForEvents: true
     instances:
       microordersRateLimiter:
-        registerHealthIndicator: true
-        baseConfig: default
+      baseConfig: default
 
 # Configuración de Chaos Monkey
 chaos:
