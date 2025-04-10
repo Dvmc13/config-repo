@@ -107,3 +107,8 @@ chaos:
         type: java.lang.RuntimeException
         arguments:
           - "Chaos Monkey - RuntimeException en microorders"
+
+logging:
+  level:
+    io.github.resilience4j.ratelimiter: DEBUG
+
