@@ -179,3 +179,7 @@ management:
     export:
       prometheus:
         enabled: true
+
+logging:
+  level:
+    io.github.resilience4j.ratelimiter: DEBUG
