@@ -57,7 +57,10 @@ spring:
             - Path=/api/orders/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
-                  
+            - name: RequestRateLimiter
+              args:
+                rate-limiter: "#{@rateLimiterFactory.get('microordersRateLimiter')}"
+                key-resolver: "#{@userKeyResolver}"
       metrics:
         enabled: true
 
