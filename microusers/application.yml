@@ -36,6 +36,10 @@ management:
       exposure:
         include: "*"
   endpoint:
+    env:
+      enabled: true
+    refresh:
+      enabled: true
     health:
       show-details: always
     prometheus:
