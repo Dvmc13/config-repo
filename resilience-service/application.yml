@@ -16,6 +16,10 @@ spring:
     listener:
       ack-mode: RECORD
       missing-topics-fatal: false
+    admin:
+      properties:
+        default.api.timeout.ms: 60000
+        retry.backoff.ms: 1000
 
 kafka:
   topics:
