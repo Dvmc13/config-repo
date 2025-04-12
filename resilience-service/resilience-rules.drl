@@ -1,0 +1,92 @@
+package rules
+
+import java.time.LocalDateTime
+import java.util.UUID
+
+import com.example.resilienceservice.model.ServiceMetrics
+import com.example.resilienceservice.model.ResilienceAction
+import com.example.resilienceservice.model.ResilienceAction.ResilienceType
+import com.example.resilienceservice.service.ResilienceMonitorService.ActionsContainer
+
+global org.slf4j.Logger log;
+
+/**
+ * Regla 1: Aplica un Circuit Breaker cuando la latencia supera 500ms
+ */
+rule "CircuitBreakerWhenLatencyHigh"
+    when
+        $metrics : ServiceMetrics(latencyMs > 500, $serviceName : serviceName)
+        $container : ActionsContainer()
+    then
+        log.warn("[Drools] Latencia alta ({} ms) en servicio: {}", $metrics.getLatencyMs(), $serviceName);
+
+        ResilienceAction action = new ResilienceAction();
+        action.setId(UUID.randomUUID().toString());
+        action.setType(ResilienceType.CIRCUIT_BREAKER);
+        action.setTargetService("frontend"); // se aplica en el Gateway
+        action.setTargetName($serviceName + "CircuitBreaker");
+        action.setTimestamp(LocalDateTime.now());
+
+        // Config genérica de CB
+        Map params = new HashMap();
+        params.put("failureRateThreshold", "50");     // 50% failures para abrir CB
+        params.put("slidingWindowSize", "10");        // última 10 llamadas
+        params.put("waitDurationInOpenState", "5000"); // 5s en open
+        action.setParams(params);
+
+        // Agregamos la acción a la lista
+        $container.addAction(action);
+end
+
+/**
+ * Regla 2: Aplica Retry cuando el errorCount está entre 10 y 20
+ */
+rule "RetryWhenErrorCountModerate"
+    when
+        $metrics : ServiceMetrics(errorCount > 10 && errorCount <= 20, $serviceName : serviceName)
+        $container : ActionsContainer()
+    then
+        log.warn("[Drools] ErrorCount moderado ({}), activando Retry para servicio: {}",
+                 $metrics.getErrorCount(), $serviceName);
+
+        ResilienceAction action = new ResilienceAction();
+        action.setId(UUID.randomUUID().toString());
+        action.setType(ResilienceType.RETRY);
+        action.setTargetService("frontend");
+        action.setTargetName($serviceName + "Retry");
+        action.setTimestamp(LocalDateTime.now());
+
+        Map params = new HashMap();
+        params.put("maxAttempts", "5");   // Aumentamos reintentos
+        params.put("waitDuration", "1000"); // 1 segundo entre reintentos
+        action.setParams(params);
+
+        $container.addAction(action);
+end
+
+/**
+ * Regla 3: Aplica Rate Limiter cuando el errorCount es muy alto (> 20).
+ */
+rule "RateLimiterWhenErrorCountHigh"
+    when
+        $metrics : ServiceMetrics(errorCount > 20, $serviceName : serviceName)
+        $container : ActionsContainer()
+    then
+        log.warn("[Drools] ErrorCount muy alto ({}), aplicando Rate Limiter en servicio: {}",
+                 $metrics.getErrorCount(), $serviceName);
+
+        ResilienceAction action = new ResilienceAction();
+        action.setId(UUID.randomUUID().toString());
+        action.setType(ResilienceType.RATE_LIMITER);
+        action.setTargetService("frontend");
+        action.setTargetName($serviceName + "RateLimiter");
+        action.setTimestamp(LocalDateTime.now());
+
+        Map params = new HashMap();
+        params.put("limitForPeriod", "5");       // solo 5 requests por periodo
+        params.put("limitRefreshPeriod", "1000"); // refresca cada 1s
+        params.put("timeoutDuration", "3000");    // 3s de espera máxima
+        action.setParams(params);
+
+        $container.addAction(action);
+end
