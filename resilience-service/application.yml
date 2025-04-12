@@ -23,6 +23,8 @@ kafka:
     resilience-actions: resilience-actions-topic
 
 resilience:
+  rules:
+    path: file:/config-repo/resilience-service/resilience-rules.drl
   monitoring:
     enabled: true
     rate: 60000
