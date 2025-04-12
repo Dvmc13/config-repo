@@ -1,4 +1,4 @@
-# Configuración del servicio de resiliencia para GitHub
+
 server:
   port: 8090
 
@@ -6,51 +6,15 @@ spring:
   application:
     name: resilience-service
 
-  # Config Server
-  cloud:
-    config:
-      uri: http://config-server:8888
-      fail-fast: false
-      import-check:
-        enabled: false
-      retry:
-        initial-interval: 1500
-        multiplier: 1.5
-        max-attempts: 6
-        max-interval: 5000
-
-    # Bus para detectar cambios de configuración
-    bus:
-      enabled: true
-      refresh:
-        enabled: true
-      destination: configChanges
-
-    # Stream para Kafka
-    stream:
-      kafka:
-        binder:
-          brokers: kafka:9092
-
   # Configuración de Kafka
   kafka:
     bootstrap-servers: kafka:9092
     consumer:
       group-id: resilience-service-group
       auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      properties:
-        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
-        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.trusted.packages: "*"
-        spring.json.use.type.headers: false
-        spring.json.value.default.type: com.example.resilienceservice.model.ConfigChangeEvent
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        spring.json.add.type.headers: false
     listener:
       ack-mode: RECORD
       missing-topics-fatal: false
@@ -81,48 +45,39 @@ microservices:
     microorders: http://microorders:8082
     frontend: http://frontend:8084
 
-# Configuración de GitHub Webhook
-github:
-  webhook:
-    secret: your-github-webhook-secret
-  config:
-    repo: config-repo
-    branch: main
-
-# Configuración de monitoreo de resiliencia
+# Configuración de monitoreo
 resilience:
   monitoring:
     enabled: true
-    rate: 60000  # intervalo de monitoreo en ms
+    rate: 60000  # 60 segundos
     thresholds:
       latency: 500   # ms
       error-rate: 10  # errores
 
-# Plantillas de patrones de resiliencia
+# Patrones de resiliencia predefinidos
 resilience-patterns:
-  templates:
-    circuit-breaker:
-      default:
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 5000
-      high-sensitivity:
-        slidingWindowSize: 5
-        failureRateThreshold: 30
-        waitDurationInOpenState: 10000
-    retry:
-      default:
-        maxAttempts: 3
-        waitDuration: 1000
-      aggressive:
-        maxAttempts: 5
-        waitDuration: 500
-    rate-limiter:
-      default:
-        limitForPeriod: 10
-        limitRefreshPeriod: 1000
-        timeoutDuration: 3000
-      restrictive:
-        limitForPeriod: 5
-        limitRefreshPeriod: 2000
-        timeoutDuration: 1000
+  circuit-breaker:
+    default:
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 5000
+    high-sensitivity:
+      slidingWindowSize: 5
+      failureRateThreshold: 30
+      waitDurationInOpenState: 10000
+  retry:
+    default:
+      maxAttempts: 3
+      waitDuration: 1000
+    aggressive:
+      maxAttempts: 5
+      waitDuration: 500
+  rate-limiter:
+    default:
+      limitForPeriod: 10
+      limitRefreshPeriod: 1000
+      timeoutDuration: 3000
+    restrictive:
+      limitForPeriod: 5
+      limitRefreshPeriod: 2000
+      timeoutDuration: 1000
