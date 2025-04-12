@@ -15,28 +15,28 @@ global org.slf4j.Logger log;
  */
 rule "CircuitBreakerWhenLatencyHigh"
     when
-        $metrics : ServiceMetrics(latencyMs > 500)
+        $metrics : ServiceMetrics()
+        eval($metrics.getLatencyMs() > 500)
         $container : ActionsContainer()
     then
-        // Extraemos el nombre de servicio en el then:
+        // Extraemos el nombre de servicio en el then
         String serviceName = $metrics.getServiceName();
-        log.warn("[Drools] Latencia alta ({} ms) en servicio: {}", $metrics.getLatencyMs(), serviceName);
+        long latency = $metrics.getLatencyMs();
+        log.warn("[Drools] Latencia alta ({} ms) en servicio: {}", latency, serviceName);
 
         ResilienceAction action = new ResilienceAction();
         action.setId(UUID.randomUUID().toString());
         action.setType(ResilienceType.CIRCUIT_BREAKER);
-        action.setTargetService("frontend"); // se aplica en el Gateway
+        action.setTargetService("frontend");
         action.setTargetName(serviceName + "CircuitBreaker");
         action.setTimestamp(LocalDateTime.now());
 
-        // Config genérica de CB
         Map params = new HashMap();
-        params.put("failureRateThreshold", "50");      // 50% failures para abrir CB
-        params.put("slidingWindowSize", "10");         // última 10 llamadas
-        params.put("waitDurationInOpenState", "5000"); // 5s en open
+        params.put("failureRateThreshold", "50");
+        params.put("slidingWindowSize", "10");
+        params.put("waitDurationInOpenState", "5000");
         action.setParams(params);
 
-        // Agregamos la acción a la lista
         $container.addAction(action);
 end
 
@@ -45,12 +45,15 @@ end
  */
 rule "RetryWhenErrorCountModerate"
     when
-        $metrics : ServiceMetrics(errorCount > 10 && errorCount <= 20)
+        $metrics : ServiceMetrics()
+        eval($metrics.getErrorCount() > 10 && $metrics.getErrorCount() <= 20)
         $container : ActionsContainer()
     then
+        int errors = $metrics.getErrorCount();
         String serviceName = $metrics.getServiceName();
+
         log.warn("[Drools] ErrorCount moderado ({}), activando Retry para servicio: {}",
-                 $metrics.getErrorCount(), serviceName);
+                 errors, serviceName);
 
         ResilienceAction action = new ResilienceAction();
         action.setId(UUID.randomUUID().toString());
@@ -60,8 +63,8 @@ rule "RetryWhenErrorCountModerate"
         action.setTimestamp(LocalDateTime.now());
 
         Map params = new HashMap();
-        params.put("maxAttempts", "5");      // Aumentamos reintentos
-        params.put("waitDuration", "1000");  // 1 segundo entre reintentos
+        params.put("maxAttempts", "5");
+        params.put("waitDuration", "1000");
         action.setParams(params);
 
         $container.addAction(action);
@@ -72,12 +75,15 @@ end
  */
 rule "RateLimiterWhenErrorCountHigh"
     when
-        $metrics : ServiceMetrics(errorCount > 20)
+        $metrics : ServiceMetrics()
+        eval($metrics.getErrorCount() > 20)
         $container : ActionsContainer()
     then
+        int errors = $metrics.getErrorCount();
         String serviceName = $metrics.getServiceName();
+
         log.warn("[Drools] ErrorCount muy alto ({}), aplicando Rate Limiter en servicio: {}",
-                 $metrics.getErrorCount(), serviceName);
+                 errors, serviceName);
 
         ResilienceAction action = new ResilienceAction();
         action.setId(UUID.randomUUID().toString());
@@ -87,9 +93,9 @@ rule "RateLimiterWhenErrorCountHigh"
         action.setTimestamp(LocalDateTime.now());
 
         Map params = new HashMap();
-        params.put("limitForPeriod", "5");        // solo 5 requests por periodo
-        params.put("limitRefreshPeriod", "1000"); // refresca cada 1s
-        params.put("timeoutDuration", "3000");    // 3s de espera máxima
+        params.put("limitForPeriod", "5");
+        params.put("limitRefreshPeriod", "1000");
+        params.put("timeoutDuration", "3000");
         action.setParams(params);
 
         $container.addAction(action);
