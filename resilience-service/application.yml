@@ -5,14 +5,52 @@ spring:
   application:
     name: resilience-service
 
+  # Configuración de Spring Cloud para el Config Server
+  cloud:
+    config:
+      uri: http://config-server:8888
+      fail-fast: false
+      import-check:
+        enabled: false
+      retry:
+        initial-interval: 1500
+        multiplier: 1.5
+        max-attempts: 6
+        max-interval: 5000
+
+    # Habilitar bus para actualizaciones distribuidas
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+      destination: configChanges
+
+    # Configuración de Stream para Kafka
+    stream:
+      kafka:
+        binder:
+          brokers: kafka:9092
+
+  # Configuración principal de Kafka (Spring Boot)
   kafka:
     bootstrap-servers: kafka:9092
     consumer:
       group-id: resilience-service-group
       auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: java.lang.String
+        max.poll.interval.ms: 300000
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
     listener:
       ack-mode: RECORD
       missing-topics-fatal: false
@@ -21,12 +59,15 @@ spring:
         default.api.timeout.ms: 60000
         retry.backoff.ms: 1000
 
+# Temas de Kafka
 kafka:
   topics:
     config-changes: config-changes-topic
     resilience-actions: resilience-actions-topic
 
+# Configuración de resiliencia
 resilience:
+  # Drools rules path
   rules:
     path: file:/tmp/config-repo/resilience-service/rules/resilience-rules.drl
   monitoring:
@@ -36,7 +77,7 @@ resilience:
       latency: 500
       error-rate: 10
 
-# Ejemplo de patrones predefinidos
+# Patrones predefinidos de resiliencia
 resilience-patterns:
   circuit-breaker:
     default:
@@ -63,3 +104,32 @@ resilience-patterns:
       limitForPeriod: 5
       limitRefreshPeriod: 2000
       timeoutDuration: 1000
+
+# Configuración de los microservicios
+microservices:
+  urls:
+    microusers: http://microusers:8081
+    microproducts: http://microproducts:8083
+    microorders: http://microorders:8082
+    frontend: http://frontend:8084
+
+# Configuración de Actuator para monitoreo y operaciones
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+    refresh:
+      enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
+    retries:
+      enabled: true
+    ratelimiters:
+      enabled: true
