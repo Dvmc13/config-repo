@@ -25,11 +25,13 @@ rule "CircuitBreakerWhenLatencyHigh"
         long latency = $metrics.getLatencyMs();
         log.warn("[Drools] Latencia alta ({} ms) en servicio: {}", latency, serviceName);
 
+        String circuitBreakerName = serviceName + "CircuitBreaker";
+
         ResilienceAction action = new ResilienceAction();
         action.setId(UUID.randomUUID().toString());
         action.setType(ResilienceType.CIRCUIT_BREAKER);
         action.setTargetService("frontend");
-        action.setTargetName("microusersCircuitBreaker");
+        action.setTargetName(circuitBreakerName);
         action.setTimestamp(LocalDateTime.now());
 
         Map params = new HashMap();
@@ -56,11 +58,13 @@ rule "RetryWhenErrorCountModerate"
         log.warn("[Drools] ErrorCount moderado ({}), activando Retry para servicio: {}",
                  errors, serviceName);
 
+        String RetryName = serviceName + "Retry";
+
         ResilienceAction action = new ResilienceAction();
         action.setId(UUID.randomUUID().toString());
         action.setType(ResilienceType.RETRY);
         action.setTargetService("frontend");
-        action.setTargetName("microproductsRetry");
+        action.setTargetName(RetryName);
         action.setTimestamp(LocalDateTime.now());
 
         Map params = new HashMap();
@@ -86,11 +90,13 @@ rule "RateLimiterWhenErrorCountHigh"
         log.warn("[Drools] ErrorCount muy alto ({}), aplicando Rate Limiter en servicio: {}",
                  errors, serviceName);
 
+        String RateLimiterName = serviceName + "RateLimiter";
+
         ResilienceAction action = new ResilienceAction();
         action.setId(UUID.randomUUID().toString());
         action.setType(ResilienceType.RATE_LIMITER);
         action.setTargetService("frontend");
-        action.setTargetName("microordersRateLimiter");
+        action.setTargetName(RateLimiterName);
         action.setTimestamp(LocalDateTime.now());
 
         Map params = new HashMap();
