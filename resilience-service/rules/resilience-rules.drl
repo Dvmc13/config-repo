@@ -49,7 +49,7 @@ end
 rule "RetryWhenErrorCountModerate"
     when
         $metrics : ServiceMetrics()
-        eval($metrics.getErrorCount() > 10 && $metrics.getErrorCount() <= 20)
+        eval($metrics.getErrorCount() > 5 && $metrics.getErrorCount() <= 20)
         $container : ActionsContainer()
     then
         int errors = $metrics.getErrorCount();
@@ -81,7 +81,7 @@ end
 rule "RateLimiterWhenErrorCountHigh"
     when
         $metrics : ServiceMetrics()
-        eval($metrics.getErrorCount() > 20)
+        eval($metrics.getErrorCount() > 5)
         $container : ActionsContainer()
     then
         int errors = $metrics.getErrorCount();
