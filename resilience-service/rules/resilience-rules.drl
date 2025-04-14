@@ -1,5 +1,4 @@
 package rules;  
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.Map;
@@ -8,15 +7,14 @@ import com.example.resilienceservice.model.ServiceMetrics;
 import com.example.resilienceservice.model.ResilienceAction;
 import com.example.resilienceservice.model.ResilienceAction.ResilienceType;
 import com.example.resilienceservice.service.ResilienceMonitorService.ActionsContainer;
-
 global org.slf4j.Logger log;
 
 /**
- * Regla 1: Aplica un Circuit Breaker cuando la latencia supera 500ms
+ * Regla 1: Aplica un Circuit Breaker cuando la latencia supera 500ms - específico para microusers
  */
 rule "CircuitBreakerWhenLatencyHigh"
     when
-        $metrics : ServiceMetrics()
+        $metrics : ServiceMetrics(serviceName == "microusers")
         eval($metrics.getLatencyMs() > 500)
         $container : ActionsContainer()
     then
@@ -24,86 +22,72 @@ rule "CircuitBreakerWhenLatencyHigh"
         String serviceName = $metrics.getServiceName();
         long latency = $metrics.getLatencyMs();
         log.warn("[Drools] Latencia alta ({} ms) en servicio: {}", latency, serviceName);
-
         String circuitBreakerName = serviceName + "CircuitBreaker";
-
         ResilienceAction action = new ResilienceAction();
         action.setId(UUID.randomUUID().toString());
         action.setType(ResilienceType.CIRCUIT_BREAKER);
         action.setTargetService("frontend");
         action.setTargetName(circuitBreakerName);
         action.setTimestamp(LocalDateTime.now());
-
         Map params = new HashMap();
         params.put("failureRateThreshold", "50");
         params.put("slidingWindowSize", "10");
         params.put("waitDurationInOpenState", "5000");
         action.setParams(params);
-
         $container.addAction(action);
 end
 
 /**
- * Regla 2: Aplica Retry cuando el errorCount está entre 10 y 20
+ * Regla 2: Aplica Retry cuando el errorCount es > 5 - específico para microproducts
  */
 rule "RetryWhenErrorCountModerate"
     when
-        $metrics : ServiceMetrics()
-        eval($metrics.getErrorCount() > 5 && $metrics.getErrorCount() <= 20)
+        $metrics : ServiceMetrics(serviceName == "microproducts")
+        eval($metrics.getErrorCount() > 5)
         $container : ActionsContainer()
     then
         int errors = $metrics.getErrorCount();
         String serviceName = $metrics.getServiceName();
-
         log.warn("[Drools] ErrorCount moderado ({}), activando Retry para servicio: {}",
                  errors, serviceName);
-
         String RetryName = serviceName + "Retry";
-
         ResilienceAction action = new ResilienceAction();
         action.setId(UUID.randomUUID().toString());
         action.setType(ResilienceType.RETRY);
         action.setTargetService("frontend");
         action.setTargetName(RetryName);
         action.setTimestamp(LocalDateTime.now());
-
         Map params = new HashMap();
         params.put("maxAttempts", "5");
         params.put("waitDuration", "1000");
         action.setParams(params);
-
         $container.addAction(action);
 end
 
 /**
- * Regla 3: Aplica Rate Limiter cuando el errorCount es muy alto (> 20).
+ * Regla 3: Aplica Rate Limiter cuando el errorCount es > 10 - específico para microorders
  */
 rule "RateLimiterWhenErrorCountHigh"
     when
-        $metrics : ServiceMetrics()
-        eval($metrics.getErrorCount() > 5)
+        $metrics : ServiceMetrics(serviceName == "microorders")
+        eval($metrics.getErrorCount() > 10)
         $container : ActionsContainer()
     then
         int errors = $metrics.getErrorCount();
         String serviceName = $metrics.getServiceName();
-
-        log.warn("[Drools] ErrorCount muy alto ({}), aplicando Rate Limiter en servicio: {}",
+        log.warn("[Drools] ErrorCount alto ({}), aplicando Rate Limiter en servicio: {}",
                  errors, serviceName);
-
         String RateLimiterName = serviceName + "RateLimiter";
-
         ResilienceAction action = new ResilienceAction();
         action.setId(UUID.randomUUID().toString());
         action.setType(ResilienceType.RATE_LIMITER);
         action.setTargetService("frontend");
         action.setTargetName(RateLimiterName);
         action.setTimestamp(LocalDateTime.now());
-
         Map params = new HashMap();
         params.put("limitForPeriod", "5");
         params.put("limitRefreshPeriod", "1000");
         params.put("timeoutDuration", "3000");
         action.setParams(params);
-
         $container.addAction(action);
 end
