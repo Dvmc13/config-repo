@@ -25,6 +25,7 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
+        # Circuit Breaker para microusers
         - id: microusers-route
           uri: http://microusers:8081
           predicates:
@@ -35,7 +36,8 @@ spring:
               args:
                 name: microusersCircuitBreaker
                 fallbackUri: forward:/fallback/microusers
-                  
+        
+        # Retry para microproducts
         - id: microproducts-route
           uri: http://microproducts:8083
           predicates:
@@ -44,6 +46,7 @@ spring:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
             - name: Retry
               args:
+                name: microproductsRetry
                 retries: 3
                 methods: GET,POST,PUT,DELETE
                 backoff:
@@ -51,16 +54,19 @@ spring:
                   maxBackoff: 1000ms
                   factor: 2
 
+        # Rate Limiter para microorders
         - id: microorders-route
           uri: http://microorders:8082
           predicates:
             - Path=/api/orders/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - name: InMemoryRateLimiter
+            - name: RequestRateLimiter
               args:
-                limit: 2
-                refreshPeriod: 10s
+                name: microordersRateLimiter
+                redis-rate-limiter.replenishRate: 2
+                redis-rate-limiter.burstCapacity: 5
+                redis-rate-limiter.requestedTokens: 1
       metrics:
         enabled: true
 
@@ -77,10 +83,11 @@ resilience4j:
         minimumNumberOfCalls: 5
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 5s  # Actualizado a 10s
-        failureRateThreshold: 50  # Actualizado a 20
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
         eventConsumerBufferSize: 50
     instances:
+      # Circuit Breaker para microusers
       microusersCircuitBreaker:
         baseConfig: default
 
@@ -95,9 +102,10 @@ resilience4j:
         eventConsumerBufferSize: 100
         registerHealthIndicator: true
     instances:
+      # Retry para microproducts
       microproductsRetry:
         baseConfig: default
-        maxAttempts: 3
+        maxAttempts: 5
         waitDuration: 1s
         retryExceptions:
           - java.lang.RuntimeException
@@ -119,8 +127,12 @@ resilience4j:
         recordEvents: true
         subscribeForEvents: true
     instances:
+      # Rate Limiter para microorders
       microordersRateLimiter:
         baseConfig: default
+        limitForPeriod: 5
+        limitRefreshPeriod: 5s
+        timeoutDuration: 3s
 
 # Configuración de Chaos Monkey
 chaos:
@@ -187,3 +199,5 @@ management:
 logging:
   level:
     io.github.resilience4j.ratelimiter: DEBUG
+    io.github.resilience4j.circuitbreaker: DEBUG
+    io.github.resilience4j.retry: DEBUG
